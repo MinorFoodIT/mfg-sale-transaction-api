@@ -1,0 +1,138 @@
+version: '3.7'
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        DB_HOST: db
+    container_name: 'mfg-4b-sz_server'
+    restart: 'always' #on-failure
+    depends_on:
+      - db
+    expose:
+      - '4000'
+    ports:
+      - '4000:4000'
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - stack1_backend
+      - stack1_frontend
+
+  web:
+    #image: mfg-4b-sz:v1
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_HOST: '127.0.0.1'
+        #REACT_APP_API_BASE_URL: 'http://:4000'
+    #extra_hosts:
+    #  - 'outside:${HOST_IP}'
+    container_name: 'mfg-4b-sz_web'
+    restart: 'always'
+    depends_on:
+      - server
+    expose: # accessible to linked services
+      - '80'  #${APP_SERVER_PORT}
+    ports:
+      - '80:80' #${APP_SERVER_PORT}:${APP_SERVER_PORT}
+    networks:
+      - stack1_frontend
+    links:
+      - server
+  db:
+    image: mysql:5.7
+    #ports:
+    #  - "3306:3306"
+    container_name: 'mfg-4b-sz_db'
+    restart: always
+    environment:
+      TZ: 'Asia/Bangkok'
+      MYSQL_DATABASE: 'storeasservice'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'minor@1234'
+      MYSQL_ROOT_PASSWORD: 'root'
+    volumes:
+      #- /Users/Macbook/stack/stack1_sz/db/data:/var/lib/mysql
+      #- /home/minor/stack/volume/stack1_sz/db/data:/var/lib/mysql
+      #- ./manage/db/config/my.cnf:/etc/mysql/my.cnf
+      - /home/docker/stack/volume/stack1_sz/db/data:/var/lib/mysql
+    networks:
+      - stack1_backend
+  admin:
+    image: adminer
+    ports:
+      - '8090:8080'
+    container_name: 'mfg-4b-sz_admin'
+    restart: always
+    networks:
+      - stack1_backend
+# Networks to be created to facilitate communication between containers
+networks:
+  stack1_backend:
+  stack1_frontend:
+
+#services:
+#  mfg-4b-sz:
+    #build:
+    #  context: .
+    #  labels:
+    #    - "com.minor.description=Sizzler webapp"
+    #    - "com.minor.department=FoodIT"
+    #  target: prod
+    #deploy:
+    #  mode: replicated = * / global=1
+    #  replicas: 1
+    #  endpoint_mode: dnsrr
+    #  labels:
+    #        com.example.description: "This label will appear on the web service"
+    #  placement:
+    #    constraints:
+    #      - node.role == manager
+    #      - engine.labels.operatingsystem == ubuntu 14.04
+    #    preferences:
+    #      - spread: node.labels.zone
+    #  resources:
+    #    limits:
+    #      cpus: '0.50'
+    #      memory: 50M
+    #    reservations:
+    #      cpus: '0.25'
+    #      memory: 20M
+    #  restart_policy: #Out of memory exception
+    #    condition: on-failure
+    #    delay: 5s
+    #    max_attempts: 3
+    #    window: 120s
+    #logging:
+    #  driver: "json-file"
+    #  options:
+    #    max-size: "200k"
+    #    max-file: "10"
+    #network_mode: "bridge"
+    #networks:
+    #  - some-network
+    #  - other-network
+    #port:port #HOST:CONTAINER
+#devices:
+#  - "/dev/ttyUSB0:/dev/ttyUSB0"
+#dns: 8.8.8.8
+#entrypoint:
+#  - /code/entrypoint.sh
+#env_file:
+#  - ./common.env
+#  - ./apps/web.env
+#environment:
+#  - RACK_ENV=development
+#  - SHOW=true
+#  - SESSION_SECRET
+#extra_hosts:
+#  - "somehost:162.242.195.82"
+#  - "otherhost:50.31.209.229"
+#healthcheck:
+#  test: ["CMD", "curl", "-f", "http://localhost"]
+#  interval: 1m30s
+#  timeout: 10s
+#  retries: 3
+#  start_period: 40s
