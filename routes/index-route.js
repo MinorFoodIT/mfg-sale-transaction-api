@@ -19,14 +19,13 @@ var router = express.Router();
 router.get('/health-check', (req, res) => {
       //logger.info('/api/health-check => OK Server up')
       res.json({
-          status: 'UP',
-          services: sdkCache
+          status: 'UP'
         });
     }
 );
 
-router.post('/v1/saleheader', (req,res) => {
-
+router.post('/v1/checkclosed',(req,res) => {
+    logger.info('received check closed');
     res.status(200).json(req.body);
 })
 
