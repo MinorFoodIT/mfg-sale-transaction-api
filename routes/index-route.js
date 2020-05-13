@@ -25,7 +25,7 @@ router.get('/health-check', (req, res) => {
     }
 );
 
-router.post('/api/v1/sale-check', (req,res) => {
+router.post('/v1/saleheader', (req,res) => {
 
     res.status(200).json(req.body);
 })
