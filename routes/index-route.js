@@ -26,6 +26,8 @@ router.get('/health-check', (req, res) => {
 
 router.post('/v1/checkclosed',(req,res) => {
     logger.info('received check closed');
+    let check = req.body;
+    logger.info(check.Company+" | "+ check.CheckNo +" | "+check.SaleDate +" | "+check.ShopId +" | "+check.IpAddress);
     res.status(200).json(req.body);
 })
 
